@@ -1,0 +1,7 @@
+spring:
+  data:
+    mongodb:
+      database: K5P
+      host: localhost
+server:
+  port: 7060

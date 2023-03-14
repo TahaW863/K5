@@ -1,0 +1,22 @@
+
+K
+java:S3010#")Remove this assignment of "dockerClient".(¿æ—ùÿÿÿÿ8÷šÏ­í0
+P
+java:S3010$".Remove this assignment of "dockerLogsService".(æ‚©¿ÿÿÿÿÿ8÷šÏ­í0
+L
+java:S3010%"/Remove this assignment of "dockerStatsService".(Ëº“¼8÷šÏ­í0
+W
+java:S2209#"5Change this instance-reference to a static reference.(¿æ—ùÿÿÿÿ8øšÏ­í0
+W
+java:S2209$"5Change this instance-reference to a static reference.(æ‚©¿ÿÿÿÿÿ8øšÏ­í0
+R
+java:S2209%"5Change this instance-reference to a static reference.(Ëº“¼8øšÏ­í0
+W	java:S125,"<This block of commented-out lines of code should be removed.(Ğ“ş8ùšÏ­í0
+]	java:S1254"<This block of commented-out lines of code should be removed.(§‘ÉŸùÿÿÿÿ8ùšÏ­í0
+X	java:S125B"<This block of commented-out lines of code should be removed.(æ°šÖ8ùšÏ­í0
+]	java:S125M"<This block of commented-out lines of code should be removed.(ñ¥ùšøÿÿÿÿ8ùšÏ­í0
+]	java:S125R"<This block of commented-out lines of code should be removed.(‰Òİùÿÿÿÿ8úšÏ­í0
+]	java:S125V"<This block of commented-out lines of code should be removed.(áşÄ¶ÿÿÿÿÿ8úšÏ­í0
+]	java:S125Y"<This block of commented-out lines of code should be removed.(Š‘÷øÿÿÿÿ8úšÏ­í0
+X	java:S125j"<This block of commented-out lines of code should be removed.(¸¡¾ú8úšÏ­í0
+X	java:S125o"<This block of commented-out lines of code should be removed.(§ÿ¢Â8úšÏ­í0
