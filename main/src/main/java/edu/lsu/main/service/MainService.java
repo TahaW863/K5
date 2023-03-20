@@ -25,6 +25,8 @@ public interface MainService {
 
     void informObserver(List<String> containerIds);
 
-    List<String> getContainerIds(ContainersDtos containerDtos);
+    ContainersDtos getFilteredContainers(ContainersDtos containerDtos);
     void removeAllContainersWithCommand(String command);
+
+    void saveContainers(ContainersDtos filteredContainers);
 }

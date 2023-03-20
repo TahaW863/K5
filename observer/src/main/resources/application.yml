@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      database: K5P
+      database: K5test
       host: localhost
   jpa:
     hibernate:

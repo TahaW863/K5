@@ -1,8 +1,6 @@
-package edu.lsu.main.dtos;
+package edu.lsu.publisher.dtos;
 
 import lombok.*;
-
-import java.util.Optional;
 
 @Data
 @Builder

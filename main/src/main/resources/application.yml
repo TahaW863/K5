@@ -1,2 +1,7 @@
 server:
   port: 7080
+spring:
+  data:
+    mongodb:
+      database: K5test
+      host: localhost

@@ -2,6 +2,7 @@ package edu.lsu.publisher.controller;
 
 
 import edu.lsu.publisher.dtos.DockerStatsSummaryDto;
+import edu.lsu.publisher.dtos.HashesDto;
 import edu.lsu.publisher.model.DockerLogsModel;
 import edu.lsu.publisher.service.DockerLogsService;
 import edu.lsu.publisher.service.DockerStatsService;
@@ -11,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,4 +34,14 @@ public class PublisherController {
         return ResponseEntity.ok(dockerLogsService.findAllLogsByContainerId(containerId));
     }
 
+    @GetMapping(value = "/logs/hashes/", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HashesDto> getLogsHashes() {
+        log.info("Getting container logs hashes");
+        return ResponseEntity.ok(dockerLogsService.getAllLogsByContainerIds());
+    }
+    @GetMapping(value = "/logs/hashes/{sessionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HashesDto> getLogsHashes(@PathVariable String sessionId) {
+        log.info("Getting container logs hashes");
+        return ResponseEntity.ok(dockerLogsService.getAllLogsByContainerIds(sessionId));
+    }
 }

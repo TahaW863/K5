@@ -4,7 +4,7 @@ import edu.lsu.main.service.MainService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"edu.lsu.main"})
 
 public class MainApplication {
     static MainService mainService;

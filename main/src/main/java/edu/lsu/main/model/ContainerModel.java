@@ -17,5 +17,7 @@ public class ContainerModel {
     @Id
     private String id;
     private Container container;
+    private String imageNameWithTag;
+    private String command;
     private VolumeModel volumeModel;
 }

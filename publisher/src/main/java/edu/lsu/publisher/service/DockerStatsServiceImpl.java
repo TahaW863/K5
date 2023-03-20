@@ -63,10 +63,10 @@ public class DockerStatsServiceImpl implements DockerStatsService {
     public Flux<DockerStatsSummaryDto> getLatestStatsSummaryById(String containerId) {
         log.info("Getting container stats summary: {}", containerId);
         return getLatestStatsByIdProActive(containerId)
-                .map((stats) -> getStatsSummary(stats.getStats(), containerId))
+                .map((stats) -> getStatsSummary(stats.getStats(), containerId, stats.getTimestamp()))
                 .map(Optional::get);
     }
-    private Optional<DockerStatsSummaryDto> getStatsSummary(Statistics stats, String containerId) {
+    private Optional<DockerStatsSummaryDto> getStatsSummary(Statistics stats, String containerId, Date timestamp) {
         try {
             ZonedDateTime preRead = ZonedDateTime.parse(stats.getPreread());
             ZonedDateTime read = ZonedDateTime.parse(stats.getRead());
@@ -100,6 +100,7 @@ public class DockerStatsServiceImpl implements DockerStatsService {
                     .networkI(Float.parseFloat(networkRxMBFormatted))
                     .networkO(Float.parseFloat(networkTxMBFormatted))
                     .containerId(containerId)
+                    .timestamp(timestamp)
                     .build());
         } catch (Exception e) {
             log.error("Error while getting stats summary");

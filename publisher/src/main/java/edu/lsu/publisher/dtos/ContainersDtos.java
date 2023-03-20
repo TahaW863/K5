@@ -1,8 +1,7 @@
-package edu.lsu.main.dtos;
+package edu.lsu.publisher.dtos;
 
-import com.github.dockerjava.api.model.Container;
-import edu.lsu.main.model.ContainerModel;
-import edu.lsu.main.model.VolumeModel;
+
+import edu.lsu.publisher.model.VolumeModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

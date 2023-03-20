@@ -1,11 +1,13 @@
 package edu.lsu.publisher.service;
 
+import edu.lsu.publisher.dtos.HashesDto;
 import edu.lsu.publisher.model.DockerLogsModel;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public interface DockerLogsService {
@@ -55,4 +57,10 @@ public interface DockerLogsService {
      */
 
     void removeDuplicateLogs();
+    /**
+     * get all the logs hashes
+     */
+    HashesDto getAllLogsByContainerIds();
+
+    HashesDto getAllLogsByContainerIds(String sessionId);
 }

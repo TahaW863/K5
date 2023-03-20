@@ -2,12 +2,18 @@ package edu.lsu.publisher.service;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
+import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.Frame;
+
+import edu.lsu.publisher.dtos.ContainersDtos;
+import edu.lsu.publisher.dtos.HashesDto;
 import edu.lsu.publisher.model.DockerLogsModel;
+import edu.lsu.publisher.model.HashModel;
+import edu.lsu.publisher.repository.ContainersRepository;
 import edu.lsu.publisher.repository.DockerLogsRepository;
-import edu.lsu.publisher.service.DockerLogsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -16,12 +22,15 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -33,6 +42,7 @@ public class DockerLogsServiceImpl implements DockerLogsService {
     private final DockerLogsRepository dockerLogsRepository;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
     private final DockerClient dockerClient;
+    private final ContainersRepository containersRepository;
 
     @Override
     public Mono<Void> subscribeLoggerToContainerId(String containerId){
@@ -142,5 +152,86 @@ public class DockerLogsServiceImpl implements DockerLogsService {
             }
         }
     }
+
+    @Override
+    public HashesDto getAllLogsByContainerIds() {
+        List<String> containerIds = new ArrayList<>();
+        List<String> fileNames = new ArrayList<>();
+        containersRepository.findAll().stream().map(ContainersDtos::getContainerInfoDtos).flatMap(List::stream)
+                .forEach(containerInfoDto -> {
+                    containerIds.add(containerInfoDto.getContainerId());
+                    fileNames.add(containerInfoDto.getCommand().split(" ")[3]);
+                });
+        return getHashesDto(containerIds, fileNames);
+    }
+
+    @Override
+    public HashesDto getAllLogsByContainerIds(String sessionId) {
+        log.info("Getting all logs by container ids: {}", sessionId);
+        List<String> containerIds = new ArrayList<>();
+        List<String> fileNames = new ArrayList<>();
+        containersRepository.findAllBySessionId(sessionId).getContainerInfoDtos()
+                .forEach(containerInfoDto -> {
+                    containerIds.add(containerInfoDto.getContainerId());
+                    fileNames.add(containerInfoDto.getCommand().split(" ")[3]);
+                });
+        return getHashesDto(containerIds, fileNames);
+    }
+
+    private HashesDto getHashesDto(List<String> containerIds, List<String> fileNames) {
+        log.info("Getting hashes dto: {}", containerIds);
+        List<String> stringHashValues = new ArrayList<>();
+        HashesDto hashesDtos = HashesDto.builder()
+                .hashes(new HashMap<>())
+                .build();
+        AtomicInteger i = new AtomicInteger(0);
+        containerIds.forEach(id->{
+            stringHashValues.add(getLogsHash(id).orElseThrow());
+            if(Objects.isNull(hashesDtos.getHashes().get(fileNames.get(i.get())))){
+                log.info("Adding new hash: {}", fileNames.get(i.get()));
+                List<HashModel> hashModels = new ArrayList<>();
+                hashModels.add(HashModel.builder()
+                        .containerId(id)
+                        .hashType("SHA256")
+                        .hashValue(stringHashValues.get(i.get()))
+                        .timestamp(Date.from(Instant.now()))
+                        .build());
+                hashesDtos.getHashes().put(fileNames.get(i.get()), hashModels);
+            }else {
+                log.info("Adding hash to existing list: {}", fileNames.get(i.get()));
+                hashesDtos.getHashes().get(fileNames.get(i.get())).add(HashModel.builder()
+                        .containerId(id)
+                        .hashType("SHA256")
+                        .hashValue(stringHashValues.get(i.get()))
+                        .timestamp(Date.from(Instant.now()))
+                        .build());
+            }
+
+        });
+        return hashesDtos;
+    }
+
+    private Optional<String> getLogsHash(String id) {
+        log.info("Getting logs hash: {}", id);
+        StringBuilder logs = new StringBuilder();
+        try {
+            dockerClient.logContainerCmd(id)
+                    .withStdOut(true)
+                    .withFollowStream(true)
+                    .exec(new ResultCallback.Adapter<>() {
+                        @Override
+                        public void onNext(Frame frame) {
+                            logs.append(new String(frame.getPayload(), StandardCharsets.UTF_8));
+                        }
+                    });
+
+            return Optional.of(DigestUtils.sha256Hex(logs.toString().getBytes(StandardCharsets.UTF_8)));
+        } catch (Exception e) {
+            log.error("Error while getting logs hash: {}", e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+
 
 }
