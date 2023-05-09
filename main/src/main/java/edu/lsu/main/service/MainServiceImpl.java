@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -32,8 +33,10 @@ public class MainServiceImpl implements MainService{
         log.info("Creating containers {}", containerInfoDtos);
         List<String> containerIds = new ArrayList<>();
         containerInfoDtos.forEach(containerModel -> {
+            String[] commandArgs=containerModel.getCommand().split(" ");
             containerIds.add(dockerClient.createContainerCmd(containerModel.getImageNameWithTag())
-                    .withCmd(containerModel.getCommand().split(" "))
+                    .withCmd(commandArgs)
+                            .withName(commandArgs[0]+ UUID.randomUUID())
                     .withHostConfig(HostConfig.newHostConfig().withBinds(new Bind(volumeModel.getAbsolutePathOnHost(), new Volume(volumeModel.getMountPathInContainer()))))
                     .exec().getId());
         });
@@ -76,6 +79,7 @@ public class MainServiceImpl implements MainService{
             containerDtos.getContainerInfoDtos().forEach(containerInfoDto -> {
                 if(container.getCommand().compareTo(containerInfoDto.getCommand())==0){
                     containerInfoDto.setContainerId(container.getId());
+                    containerInfoDto.setContainerName(container.getNames()[0]);
                     filteredContainers.getContainerInfoDtos().add(containerInfoDto);
                     log.info("Container id: {}, command: {}", container.getId(), container.getCommand());
                 }

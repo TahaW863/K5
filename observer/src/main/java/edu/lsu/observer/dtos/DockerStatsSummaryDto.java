@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class DockerStatsSummaryDto {
+
     private String containerId;
     private float cpuPercent;
     private float memoryUsage;

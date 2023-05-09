@@ -26,6 +26,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -213,7 +215,7 @@ public class DockerLogsServiceImpl implements DockerLogsService {
 
     private Optional<String> getLogsHash(String id) {
         log.info("Getting logs hash: {}", id);
-        StringBuilder logs = new StringBuilder();
+        List<byte[]> logs =new ArrayList<>();
         try {
             dockerClient.logContainerCmd(id)
                     .withStdOut(true)
@@ -221,15 +223,36 @@ public class DockerLogsServiceImpl implements DockerLogsService {
                     .exec(new ResultCallback.Adapter<>() {
                         @Override
                         public void onNext(Frame frame) {
-                            logs.append(new String(frame.getPayload(), StandardCharsets.UTF_8));
+                            logs.add((frame.getPayload()));
                         }
-                    });
-
-            return Optional.of(DigestUtils.sha256Hex(logs.toString().getBytes(StandardCharsets.UTF_8)));
+                    }).awaitCompletion();
+            return Optional.ofNullable(getSha256Hash(logs));
         } catch (Exception e) {
             log.error("Error while getting logs hash: {}", e.getMessage());
         }
         return Optional.empty();
+    }
+    public static String getSha256Hash(List<byte[]> logs) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            for (byte[] data : logs) {
+                digest.update(data);
+            }
+            byte[] hashBytes = digest.digest();
+
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 

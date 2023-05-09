@@ -11,6 +11,7 @@ import java.util.Optional;
 @Setter
 public class ContainerInfoDto {
     private String containerId;
+    private String containerName;
     private String command;
     private String ImageNameWithTag;
 

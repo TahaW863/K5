@@ -14,4 +14,6 @@ public interface DockerStatsRepository extends ReactiveMongoRepository<DockerSta
     Publisher<? extends DockerStatsModel> saveAll(List<Object> objects);
 
     Flux<DockerStatsModel> findAllByContainerId(String containerId);
+    // find all and order by id asc, use findAll
+    Flux<DockerStatsModel> findAllByOrderByIdAsc();
 }

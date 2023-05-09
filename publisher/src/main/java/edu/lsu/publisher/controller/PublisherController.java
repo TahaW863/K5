@@ -28,6 +28,11 @@ public class PublisherController {
         log.info("Getting container stats summary: {}", containerId);
         return ResponseEntity.ok(dockerStatsService.getLatestStatsSummaryById(containerId));
     }
+    /*@GetMapping(value = "/stats/summary/{sessionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<DockerStatsSummaryDto>> getLatestStatsSummaryById(@PathVariable String sessionId) {
+        log.info("Getting container stats summary: {}", sessionId);
+        return ResponseEntity.ok(dockerStatsService.getLatestStatsSummaryBySessionId(sessionId));
+    }*/
     @GetMapping(value = "/logs/{containerId}/", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<DockerLogsModel>> getLogsById(@PathVariable String containerId) {
         log.info("Getting container logs: {}", containerId);
